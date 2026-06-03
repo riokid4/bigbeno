@@ -94,22 +94,21 @@ class SpatialConsistencyClassifier(nn.Module):
         # 4. Edge encoding
         edge_latent = self.edge_encoder(projected)  # (E, latent)
 
-        # 5. Message passing: one round
-        msg_input = torch.cat([
-            node_latent[senders],
-            node_latent[receivers],
-            edge_latent
-        ], dim=1)  # (E, 3*latent)
-        messages = self.message_encoder(msg_input)  # (E, latent)
-
-        # Aggregate messages to nodes (sum)
+        # 5. Message passing: 3 rounds
+        node_out = node_latent
         num_nodes = pos.shape[0]
-        agg = torch.zeros(num_nodes, messages.shape[1],
-                         device=messages.device)
-        agg.index_add_(0, receivers, messages)
-
-        # Residual: add to node latent
-        node_out = node_latent + agg  # (N, latent)
+        for _ in range(3):
+            msg_input = torch.cat([
+                node_out[senders],
+                node_out[receivers],
+                edge_latent
+            ], dim=1)
+            messages = self.message_encoder(msg_input)
+            
+            agg = torch.zeros(num_nodes, messages.shape[1], device=messages.device)
+            agg.index_add_(0, receivers, messages)
+            
+            node_out = node_out + agg
 
         # 6. Graph-level pooling
         graph_embed = global_mean_pool(node_out, batch)  # (B, latent)

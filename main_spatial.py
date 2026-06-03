@@ -36,10 +36,10 @@ from utils.utils import set_seed
 # Config
 ENV_DIR     = '/workspaces/dygna/environments'
 SAVE_DIR    = '/workspaces/dygna/spatial_checkpoints'
-EPOCHS      = 50
-BATCH_SIZE  = 8
+EPOCHS      = 100
+BATCH_SIZE  = 16
 LR          = 1e-3
-LATENT_SIZE = 64
+LATENT_SIZE = 128
 MLP_LAYERS  = 2
 SEED        = 42
 VAL_SPLIT   = 0.2  # 20% of environments for validation
@@ -109,6 +109,7 @@ n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"Model parameters: {n_params:,}")
 
 optimizer = optim.Adam(model.parameters(), lr=LR)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.5, patience=7)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(
     optimizer, mode="max", factor=0.5, patience=10
 )
@@ -188,6 +189,7 @@ for epoch in range(1, EPOCHS + 1):
     scheduler.step(val_acc)
 
     # Save best model
+    scheduler.step(val_acc)
     is_best = val_acc > best_val_acc
     if is_best:
         best_val_acc = val_acc

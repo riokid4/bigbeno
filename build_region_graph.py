@@ -313,6 +313,8 @@ def build_spatial_graph(mesh_path, normal_y_threshold=0.7, min_faces=1):
     print(f"  normals shape   : {graph.normals.shape}")
     print(f"  boundary shape  : {graph.boundary_vecs.shape}")
 
+    # Set standard PyG node feature matrix (pos + normals)
+    graph.x = torch.cat([graph.pos, graph.normals], dim=-1)  # (N, 6)
     return graph
 
 
