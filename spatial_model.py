@@ -84,11 +84,13 @@ class SpatialConsistencyClassifier(nn.Module):
         )
 
         # 3. Project boundary vectors onto local reference frame
+        # boundary_vecs is edge-indexed (E, 3) — one vector per directed edge.
+        # We use it directly, not indexed by node indices.
         # This is where the antisymmetry does work:
         # a corrupted boundary vector will project inconsistently
-        # onto the frame built from positions and normals
+        # onto the frame built from positions and normals.
         basis = torch.stack([va, vb, vc], dim=1)  # (E, 3, 3)
-        bvec = boundary_vecs[senders]              # (E, 3)
+        bvec = boundary_vecs                       # (E, 3) — edge-indexed, not node-indexed
         projected = torch.bmm(basis, bvec.unsqueeze(-1)).squeeze(-1)  # (E, 3)
 
         # 4. Edge encoding

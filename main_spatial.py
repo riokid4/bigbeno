@@ -28,17 +28,17 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 import numpy as np
 
-sys.path.insert(0, '/workspaces/dygna')
+sys.path.insert(0, '/workspaces/bigbeno')
 from spatial_dataset import SpatialConsistencyDataset, collate_consistency_batch
 from spatial_model import SpatialConsistencyClassifier
 from utils.utils import set_seed
 
 # Config
-ENV_DIR     = '/workspaces/dygna/environments'
-SAVE_DIR    = '/workspaces/dygna/spatial_checkpoints'
+ENV_DIR     = '/workspaces/bigbeno/environments'
+SAVE_DIR    = '/workspaces/bigbeno/spatial_checkpoints'
 EPOCHS      = 100
 BATCH_SIZE  = 16
-LR          = 1e-3
+LR          = 1e-4
 LATENT_SIZE = 128
 MLP_LAYERS  = 2
 SEED        = 42

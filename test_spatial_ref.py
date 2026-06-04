@@ -12,7 +12,7 @@ If any fail, paste the full assertion error before touching anything else.
 """
 import torch
 import sys
-sys.path.insert(0, '/workspaces/dygna')
+sys.path.insert(0, '/workspaces/bigbeno')
 from model.model import SpatialRefFrameCalc
 
 def test_spatial_ref_frame():

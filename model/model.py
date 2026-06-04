@@ -128,6 +128,18 @@ class SpatialRefFrameCalc(nn.Module):
         b_prl     = b_prl_dot * vector_a
         b_prp     = b - b_prl
 
+        # Degeneracy guard: if b_prp is zero (all contributors parallel to a),
+        # use a fixed fallback perpendicular to vector_a
+        b_prp_norm = b_prp.norm(dim=1, keepdim=True)
+        degenerate = (b_prp_norm < self.eps).squeeze(1)
+        if degenerate.any():
+            fallback = torch.zeros_like(b_prp)
+            fallback[:, 1] = 1.0  # Y axis as fallback
+            # Re-orthogonalize fallback against vector_a
+            fb_prl = (fallback * vector_a).sum(dim=1, keepdim=True) * vector_a
+            fb_prp = fallback - fb_prl
+            b_prp[degenerate] = fb_prp[degenerate]
+
         vector_b = normalize(torch.cross(b_prp, vector_a, dim=1))
         vector_c = normalize(torch.cross(vector_a, vector_b, dim=1))
 

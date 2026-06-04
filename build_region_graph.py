@@ -237,11 +237,13 @@ def build_region_edges(mesh, regions, centroids, max_connection_distance=5.0):
             mid = ((centroids[ra] + centroids[rb]) / 2).numpy()
             region_pairs[key] = [mid]
 
-    assert len(region_pairs) > 0, (
-        f"No edges found between {n} regions. "
-        f"Max centroid distance allowed: {max_connection_distance}. "
-        f"Centroid positions:\n{centroids}"
-    )
+    if len(region_pairs) == 0:
+        # Single region or no adjacent regions — return empty edges
+        import torch as _torch
+        empty_ei = _torch.zeros((2, 0), dtype=_torch.long)
+        empty_bv = _torch.zeros((0, 3), dtype=_torch.float32)
+        print(f"  Note: {n} region(s) found but no edges between them")
+        return empty_ei, empty_bv
 
     senders = []
     receivers = []

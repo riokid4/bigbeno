@@ -24,7 +24,7 @@ import random
 from torch.utils.data import Dataset
 from torch_geometric.data import Data, Batch
 
-sys.path.insert(0, '/workspaces/dygna')
+sys.path.insert(0, '/workspaces/bigbeno')
 from build_region_graph import build_spatial_graph
 
 
@@ -40,8 +40,10 @@ def rotate_vectors_random(vectors, min_angle=90, max_angle=180):
     """
     angle = np.radians(random.uniform(min_angle, max_angle))
 
-    # Random unit axis
+    # Random unit axis — resample if zero vector (extremely rare)
     axis = np.random.randn(3)
+    while np.linalg.norm(axis) < 1e-8:
+        axis = np.random.randn(3)
     axis = axis / np.linalg.norm(axis)
 
     # Rodrigues rotation formula
@@ -193,7 +195,7 @@ if __name__ == "__main__":
     print()
 
     dataset = SpatialConsistencyDataset(
-        env_dir='/workspaces/dygna/environments',
+        env_dir='/workspaces/bigbeno/environments',
         augmentations=4
     )
 
